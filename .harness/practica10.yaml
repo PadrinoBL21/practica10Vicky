@@ -1,0 +1,77 @@
+pipeline:
+  name: practica10
+  identifier: practica10
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: no se que estoy haciendo
+        identifier: no_se_que_estoy_haciendo
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Windows
+            arch: Amd64
+          runtime:
+            type: Docker
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: account.harnessImage
+                    repo: practica10
+                    tags:
+                      - practica
+    - stage:
+        name: quesesuponequees
+        identifier: quesesuponequees
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          gitOpsEnabled: true
+          service:
+            serviceRef: kubernetes
+          execution:
+            steps:
+              - step:
+                  type: GitOpsUpdateReleaseRepo
+                  name: Update Release Repo
+                  identifier: updateReleaseRepo
+                  timeout: 10m
+                  spec: {}
+              - step:
+                  type: MergePR
+                  name: Merge PR
+                  identifier: mergePR
+                  spec:
+                    deleteSourceBranch: true
+                  timeout: 10m
+              - step:
+                  type: GitOpsFetchLinkedApps
+                  name: Fetch Linked Apps
+                  identifier: fetchLinkedApps
+                  timeout: 10m
+                  spec: {}
+          environment:
+            environmentRef: preproduction
+            deployToAll: true
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+  properties:
+    ci:
+      codebase:
+        connectorRef: gitconnector
+        build: <+input>
