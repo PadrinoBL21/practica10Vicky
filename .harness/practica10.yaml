@@ -60,6 +60,7 @@ pipeline:
                   identifier: fetchLinkedApps
                   timeout: 10m
                   spec: {}
+            rollbackSteps: []
           environment:
             environmentRef: preproduction
             deployToAll: true
